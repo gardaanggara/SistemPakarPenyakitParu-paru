@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\GejalaController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -36,5 +37,13 @@ Route::prefix('users')->group(function(){
     Route::get('/api/data/{id}', [UsersController::class, 'getUserById']); 
     Route::post('/store/{id?}', [UsersController::class, 'storeOrUpdate'])->name('storeUsers');
     Route::delete('/{id?}', [UsersController::class, 'destroy'])->name('deleteUsers');
+});
+
+Route::prefix('gejala')->group(function(){
+    Route::get('/data', [GejalaController::class, 'index'])->name('dashboardGejala');
+    Route::get('/api/data', [GejalaController::class, 'getData'])->name('apiDataGejala');
+    Route::get('/api/data/{id}', [GejalaController::class, 'getGejalaById']); 
+    Route::post('/store/{id?}', [GejalaController::class, 'storeOrUpdate'])->name('storeGejala');
+    Route::delete('/{id?}', [GejalaController::class, 'destroy'])->name('deleteGejala');
 });
 require __DIR__.'/auth.php';
