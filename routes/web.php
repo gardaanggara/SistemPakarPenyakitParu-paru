@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\UsersController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +30,11 @@ Route::prefix('roles')->group(function(){
     Route::delete('/{id?}', [RolesController::class, 'destroy'])->name('deleteRoles');
 });
 
+Route::prefix('users')->group(function(){
+    Route::get('/data', [UsersController::class, 'index'])->name('dashboardUsers');
+    Route::get('/api/data', [UsersController::class, 'getData'])->name('apiDataUsers');
+    Route::get('/api/data/{id}', [UsersController::class, 'getUserById']); 
+    Route::post('/store/{id?}', [UsersController::class, 'storeOrUpdate'])->name('storeUsers');
+    Route::delete('/{id?}', [UsersController::class, 'destroy'])->name('deleteUsers');
+});
 require __DIR__.'/auth.php';

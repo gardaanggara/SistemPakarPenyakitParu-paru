@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var roleList = new Tabulator("#role-list", {
+    var userList = new Tabulator("#user-list", {
         columns: [
             { 
                 title: "Aksi",
@@ -18,42 +18,76 @@ $(document).ready(function () {
                 width: "10%",
             },
             { 
-                title: "Keterangan", 
-                field: "keterangan",
+                title: "Nama", 
+                field: "name",
                 sorter: true,
-                width: "90%",
+                width: "30%",
+            },
+            { 
+                title: "Email", 
+                field: "email",
+                sorter: true,
+                width: "30%",
+            },
+            { 
+                title: "Tanggal Daftar", 
+                field: "created_at",
+                sorter: true,
+                width: "30%",
+                formatter: function(cell, formatterParams, onRendered) {
+                    // Ambil nilai tanggal dari sel
+                    var createdAt = cell.getValue();
+                    
+                    // Ubah format tanggal menggunakan Moment.js
+                    return moment(createdAt).format('DD/MM/YYYY');
+                }
             }
         ],
-        ajaxURL: "/roles/api/data",
+        ajaxURL: "/users/api/data",
         ajaxConfig: "GET",
         pagination: "remote",
         paginationSize: 10,
         placeholder: "Data tidak tersedia",
     });
+    
 
-    $("#role-list").on("click", ".edit-btn", function () {
+    // Event handler untuk tombol edit
+    $("#user-list").on("click", ".edit-btn", function () {
         var id = $(this).data("id");
-        console.log("Edit ID: " + id);
-        // Ambil data 
+
+        // Ambil data pengguna berdasarkan ID
         $.ajax({
-            url: '/roles/api/data/' + id,
+            url: '/users/api/data/' + id,
             method: 'GET',
             success: function (data) {
                 // Memasukkan data ke dalam modal
-                $("#editId").val(data.id); 
-                $("#editKeterangan").val(data.keterangan); 
+                $("#editId").val(data.id);
+                $("#editName").val(data.name);
+                $("#editEmail").val(data.email);
 
-                // Pastikan modal edit ditampilkan setelah data dimuat
+                // Set form action URL
+                // $("#editForm").attr("action", '/users/store/' + data.id);
+
+                // Tampilkan modal edit
                 $('#editModal').modal('show');
+            },
+            error: function (xhr, status, error) {
+                // Handle error jika diperlukan
+                Swal.fire(
+                    'Error!',
+                    'Terjadi kesalahan saat mengambil data.',
+                    'error'
+                );
             }
         });
     });
+
 
     // Ambil CSRF token dari meta tag
     var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
     // Event handler untuk tombol hapus
-    $("#role-list").on("click", ".delete-btn", function () {
+    $("#user-list").on("click", ".delete-btn", function () {
         var id = $(this).data("id");
 
         // Tampilkan SweetAlert untuk konfirmasi
@@ -70,7 +104,7 @@ $(document).ready(function () {
             if (result.isConfirmed) {
                 // Lakukan penghapusan dengan Ajax dan sertakan token CSRF
                 $.ajax({
-                    url: '/roles/' + id,
+                    url: '/users/' + id,
                     method: 'DELETE', // Gunakan metode DELETE
                     headers: {
                         'X-CSRF-TOKEN': csrfToken // Sertakan token CSRF di sini
