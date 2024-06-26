@@ -31,7 +31,7 @@
 
     <!-- Modal Tambah Data -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <form id="addForm" method="POST">
+        <form id="addForm" method="POST" action="{{ route('storeRoles') }}"> 
             @csrf
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -42,7 +42,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="keterangan" class="form-label">Keterangan</label>
-                            <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan">
+                            <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -54,11 +54,10 @@
         </form>
     </div>
 
-    <!-- Modal Edit Data -->
+   <!-- Modal Edit Data -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <form id="editForm" method="POST">
+        <form id="editForm" method="POST" action="{{ route('storeRoles', ['id' => 0]) }}">
             @csrf
-            @method('PATCH') <!-- Tambahkan metode PATCH untuk update -->
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -66,7 +65,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="editId" name="role_id"> <!-- Ubah menjadi role_id untuk keperluan update -->
+                        <input type="hidden" id="editId" name="id">
                         <div class="mb-3">
                             <label for="editKeterangan" class="form-label">Keterangan</label>
                             <input type="text" class="form-control" id="editKeterangan" name="keterangan">
@@ -80,6 +79,7 @@
             </div>
         </form>
     </div>
+
 
     <!-- Pemanggilan file js pendukung halaman dashboard roles -->
     <script src="{{ asset('js/roles/index.js') }}"></script>

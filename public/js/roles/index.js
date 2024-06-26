@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    roleList = new Tabulator("#role-list", {
+    var roleList = new Tabulator("#role-list", {
         columns: [
             { 
                 title: "#",
@@ -31,57 +31,72 @@ $(document).ready(function () {
         placeholder: "Data tidak tersedia",
     });
 
-    // Event handler untuk tombol edit
     $("#role-list").on("click", ".edit-btn", function () {
         var id = $(this).data("id");
         console.log("Edit ID: " + id);
-        
-        // Memasukkan data ke dalam modal
-        $("#editId").val(id); // Memasukkan ID ke dalam input tersembunyi
-        
-        // Melakukan request AJAX untuk mengambil data detail role
-        $.get(`/roles/${id}`, function(data) {
-            $("#editKeterangan").val(data.keterangan); // Memasukkan keterangan ke dalam input editKeterangan
-        });
-
-        // Pastikan modal edit ditampilkan setelah data dimuat
-        $('#editModal').modal('show');
-    });
-
-    // Submit form edit
-    $("#editForm").submit(function (e) {
-        e.preventDefault();
-        var id = $("#editId").val();
-        var keterangan = $("#editKeterangan").val();
-        console.log("Simpan perubahan untuk ID: " + id);
-        
-        // Tambahkan logika untuk menyimpan perubahan menggunakan AJAX
+        // Ambil data 
         $.ajax({
-            url: `/roles/store/${id}`,
-            type: 'POST',
-            data: {
-                _method: 'PATCH', // Metode PATCH untuk update
-                keterangan: keterangan
-            },
-            success: function(response) {
-                console.log(response);
-                // Tambahkan logika lain sesuai kebutuhan, misalnya menampilkan pesan sukses
-                // dan mengupdate data di tabel jika perlu
-                roleList.setData("/roles/api/data"); // Refresh data tabel setelah update
-            },
-            error: function(xhr) {
-                console.log(xhr.responseText);
+            url: '/roles/api/data/' + id,
+            method: 'GET',
+            success: function (data) {
+                // Memasukkan data ke dalam modal
+                $("#editId").val(data.id); 
+                $("#editKeterangan").val(data.keterangan); 
+
+                // Pastikan modal edit ditampilkan setelah data dimuat
+                $('#editModal').modal('show');
             }
         });
-
-        // Tutup modal setelah sukses menyimpan perubahan
-        $("#editModal").modal("hide");
     });
 
-    // Event handler untuk tombol hapus (jika diperlukan)
+    // Ambil CSRF token dari meta tag
+    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+    // Event handler untuk tombol hapus
     $("#role-list").on("click", ".delete-btn", function () {
         var id = $(this).data("id");
-        console.log("Delete ID: " + id);
-        // Tambahkan logika untuk menghapus data di sini
+
+        // Tampilkan SweetAlert untuk konfirmasi
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Lakukan penghapusan dengan Ajax dan sertakan token CSRF
+                $.ajax({
+                    url: '/roles/' + id,
+                    method: 'DELETE', // Gunakan metode DELETE
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken // Sertakan token CSRF di sini
+                    },
+                    success: function (response) {
+                        // Handle success response, misalnya reload tabel atau notifikasi
+                        Swal.fire(
+                            'Deleted!',
+                            'Data telah dihapus.',
+                            'success'
+                        ).then(() => {
+                            // Reload halaman setelah menghapus
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle error response jika diperlukan
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat menghapus data.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
     });
+
 });

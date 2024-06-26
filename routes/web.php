@@ -22,10 +22,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::prefix('roles')->group(function(){
-    Route::get('/data',[RolesController::class, 'index'])->name('dashboardRoles');
-    Route::get('/api/data',[RolesController::class, 'getData'])->name('apiDataRoles');
-    Route::patch('/update-data', [RolesController::class, 'update'])->name('updateRoles');
-    Route::post('/store/{id}', [RolesController::class, 'store'])->name('storeRoles');
+    Route::get('/data', [RolesController::class, 'index'])->name('dashboardRoles');
+    Route::get('/api/data', [RolesController::class, 'getData'])->name('apiDataRoles');
+    Route::get('/api/data/{id}', [RolesController::class, 'getRoleById']); 
+    Route::post('/store/{id?}', [RolesController::class, 'storeOrUpdate'])->name('storeRoles');
+    Route::delete('/{id?}', [RolesController::class, 'destroy'])->name('deleteRoles');
 });
 
 require __DIR__.'/auth.php';

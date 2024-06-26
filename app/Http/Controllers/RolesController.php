@@ -47,41 +47,38 @@ class RolesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, $id = null)
+
+    public function storeOrUpdate(Request $request, $id = NULL)
     {
-        // Validasi inputan
+        // Validasi data yang masuk
         $request->validate([
-            'keterangan' => ['required', 'string', 'max:255']
+            'id' => 'nullable|exists:roles,id',
+            'keterangan' => 'required|string'
         ]);
 
-        // Ambil ID dari request
-        $role_id = $request->input('role_id');
-
-        // Lakukan operasi insert atau update sesuai dengan keberadaan ID
-        if ($role_id) {
-            // Jika ID tersedia, lakukan update
-            $role = Roles::find($role_id);
-
-            // Periksa apakah data ditemukan
-            if ($role) {
-                // Update data
-                $role->update([
-                    'keterangan' => $request->keterangan
-                    // Tambahkan kolom lain yang perlu diupdate di sini
-                ]);
-
-                return redirect(route('dashboardRoles'))->with('success', 'Data berhasil diupdate.');
+        if ($request->filled('id')) {
+            // Jika ID ada, update item yang sudah ada
+            $item = Roles::find($request->id);
+            if ($item) {
+                $item->keterangan = $request->keterangan;
+                $item->save();
+                return redirect()->back()->with('success', 'Data berhasil diupdate.');
             } else {
-                return redirect(route('dashboardRoles'))->with('error', 'Data tidak ditemukan.');
+                return redirect()->back()->with('error', 'Data tidak ditemukan.');
             }
         } else {
-            // Jika ID tidak tersedia, lakukan insert
-            $role = Roles::create([
-                'keterangan' => $request->keterangan
-            ]);
-
-            return redirect(route('dashboardRoles'))->with('success', 'Data berhasil disimpan.');
+            // Jika ID tidak ada, buat item baru
+            $item = new Roles;
+            $item->keterangan = $request->keterangan;
+            $item->save();
+            return redirect()->back()->with('success', 'Data berhasil disimpan.');
         }
+    }
+
+    public function getRoleById($id)
+    {
+        $role = Roles::find($id);
+        return response()->json($role);
     }
 
 
@@ -112,8 +109,15 @@ class RolesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $item = Roles::find($id);
+        
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Data berhasil dihapus.']);
+        } else {
+            return response()->json(['error' => 'Data tidak ditemukan.'], 404);
+        }
+    }    
 }
